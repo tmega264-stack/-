@@ -1,6 +1,11 @@
 const installButton = document.getElementById("installButton");
 const installHint = document.getElementById("installHint");
 const appBanner = document.getElementById("appBanner");
+const installModal = document.getElementById("installModal");
+const installModalTitle = document.getElementById("installModalTitle");
+const installModalText = document.getElementById("installModalText");
+const installModalSteps = document.getElementById("installModalSteps");
+const installModalClose = document.getElementById("installModalClose");
 
 let deferredInstallPrompt = null;
 let bannerTimeoutId = null;
@@ -9,6 +14,7 @@ const isLocalhost = ["localhost", "127.0.0.1"].includes(location.hostname);
 const isFileProtocol = location.protocol === "file:";
 const needsSecureHost = !window.isSecureContext && !isLocalhost && !isFileProtocol;
 const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isAndroid = /android/i.test(navigator.userAgent);
 
 function isStandaloneApp() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -66,23 +72,27 @@ function getInstallHintText() {
     return "Працює як встановлений додаток";
   }
 
+  if (deferredInstallPrompt) {
+    return "Можна встановити прямо зараз";
+  }
+
   if (isFileProtocol) {
-    return "Для встановлення відкрий через localhost або HTTPS";
+    return "Для справжнього встановлення відкрий через localhost або HTTPS";
   }
 
   if (needsSecureHost) {
     return "Для встановлення потрібен HTTPS, наприклад GitHub Pages";
   }
 
-  if (deferredInstallPrompt) {
-    return "Можна встановити на головний екран";
-  }
-
   if (isIos) {
-    return "На iPhone: Поділитися -> На екран Домівки";
+    return "Кнопка покаже кроки для iPhone";
   }
 
-  return "Відкрий у Chrome або Edge на смартфоні для встановлення";
+  if (isAndroid) {
+    return "Кнопка покаже кроки для Android";
+  }
+
+  return "Кнопка покаже кроки для встановлення";
 }
 
 function refreshInstallUi() {
@@ -103,7 +113,7 @@ function updateNetworkState() {
 
   if (isFileProtocol) {
     showBanner(
-      "Щоб кнопка встановлення реально працювала на телефоні, відкрий застосунок через localhost або розмісти сайт на GitHub Pages через HTTPS.",
+      "Зараз застосунок відкрито як файл. Для реального встановлення на смартфоні відкрий його через localhost або HTTPS.",
       "warning"
     );
     return;
@@ -115,6 +125,76 @@ function updateNetworkState() {
   }
 
   hideBanner();
+}
+
+function openInstallModal(config) {
+  if (!installModal || !installModalTitle || !installModalText || !installModalSteps) {
+    showBanner(config.text, "warning", 6000);
+    return;
+  }
+
+  installModalTitle.textContent = config.title;
+  installModalText.textContent = config.text;
+  installModalSteps.innerHTML = config.steps.map((step) => `<li>${step}</li>`).join("");
+  installModal.hidden = false;
+  document.body.classList.add("modal-open");
+}
+
+function closeInstallModal() {
+  if (!installModal) {
+    return;
+  }
+
+  installModal.hidden = true;
+  document.body.classList.remove("modal-open");
+}
+
+function getInstallGuide() {
+  if (isFileProtocol || needsSecureHost) {
+    return {
+      title: "Щоб кнопка реально встановлювала додаток",
+      text: "Зараз сайт відкритий без HTTPS, тому браузер не може показати нативне встановлення як у справжнього PWA.",
+      steps: [
+        "Опублікуй проєкт на GitHub Pages або іншому HTTPS-хостингу.",
+        "Відкрий отримане https-посилання на смартфоні.",
+        "На Android підтвердь Install app, а на iPhone додай через меню Поділитися."
+      ]
+    };
+  }
+
+  if (isIos) {
+    return {
+      title: "Встановлення на iPhone",
+      text: "Safari не показує системний install prompt, але додаток можна додати на головний екран вручну.",
+      steps: [
+        "Відкрий сайт у Safari.",
+        "Натисни кнопку Поділитися.",
+        "Вибери На екран Домівки і підтвердь додавання."
+      ]
+    };
+  }
+
+  if (isAndroid) {
+    return {
+      title: "Встановлення на Android",
+      text: "Якщо автоматичне вікно ще не з’явилось, додаток все одно можна встановити через меню браузера.",
+      steps: [
+        "Відкрий сайт у Chrome або Edge.",
+        "Натисни меню браузера у правому верхньому куті.",
+        "Вибери Install app або Додати на головний екран."
+      ]
+    };
+  }
+
+  return {
+    title: "Встановлення в браузері",
+    text: "На комп’ютері або в окремих браузерах встановлення залежить від підтримки PWA саме цим браузером.",
+    steps: [
+      "Використай Chrome або Edge.",
+      "Відкрий сайт через localhost або HTTPS.",
+      "Знайди пункт Install app або Apps у меню браузера."
+    ]
+  };
 }
 
 function registerServiceWorker() {
@@ -176,25 +256,12 @@ function bindInstallPrompt() {
       return;
     }
 
-    if (isFileProtocol || needsSecureHost) {
-      showBanner(
-        "Кнопка запрацює як справжнє встановлення після публікації сайту через HTTPS. Найпростіше рішення: GitHub Pages.",
-        "warning",
-        6500
-      );
-      return;
-    }
-
-    if (isIos) {
-      showBanner("На iPhone відкрий меню 'Поділитися' і вибери 'На екран Домівки'.", "success", 6500);
-      return;
-    }
-
-    showBanner("Відкрий цей сайт у Chrome або Edge на Android і дочекайся системної пропозиції встановлення.", "warning", 5500);
+    openInstallModal(getInstallGuide());
   });
 
   window.addEventListener("appinstalled", () => {
     deferredInstallPrompt = null;
+    closeInstallModal();
     refreshInstallUi();
 
     if (installHint) {
@@ -205,9 +272,30 @@ function bindInstallPrompt() {
   });
 }
 
+function bindInstallModal() {
+  if (!installModal) {
+    return;
+  }
+
+  if (installModalClose) {
+    installModalClose.addEventListener("click", closeInstallModal);
+  }
+
+  installModal.querySelectorAll("[data-close-install]").forEach((element) => {
+    element.addEventListener("click", closeInstallModal);
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !installModal.hidden) {
+      closeInstallModal();
+    }
+  });
+}
+
 window.addEventListener("online", updateNetworkState);
 window.addEventListener("offline", updateNetworkState);
 
 registerServiceWorker();
 bindInstallPrompt();
+bindInstallModal();
 updateNetworkState();

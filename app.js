@@ -586,6 +586,9 @@ const profileSummaryFaculty = document.getElementById("profileSummaryFaculty");
 const profileSummaryAccount = document.getElementById("profileSummaryAccount");
 const profileSummaryLevel = document.getElementById("profileSummaryLevel");
 const profileSummaryId = document.getElementById("profileSummaryId");
+const profileAvatar = document.getElementById("profileAvatar");
+const profilePhotoInput = document.getElementById("profilePhotoInput");
+const removeProfilePhotoButton = document.getElementById("removeProfilePhotoButton");
 const profileFullName = document.getElementById("profileFullName");
 const profileEmail = document.getElementById("profileEmail");
 const profilePassword = document.getElementById("profilePassword");
@@ -717,6 +720,58 @@ async function hashPassword(password) {
   return `local-${password.length}`;
 }
 
+function renderProfileAvatar() {
+  if (!profileAvatar) {
+    return;
+  }
+
+  const avatarDataUrl = state.profile.avatarDataUrl || "";
+  profileAvatar.classList.toggle("has-image", Boolean(avatarDataUrl));
+
+  if (avatarDataUrl) {
+    profileAvatar.innerHTML = `<img src="${avatarDataUrl}" alt="Фото профілю студента">`;
+    return;
+  }
+
+  profileAvatar.textContent = "😊";
+}
+
+function prepareProfilePhoto(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onload = () => {
+        const maxSide = 320;
+        const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("Canvas unavailable"));
+          return;
+        }
+
+        context.drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.86));
+      };
+
+      image.onerror = () => reject(new Error("Image decode failed"));
+      image.src = typeof reader.result === "string" ? reader.result : "";
+    };
+
+    reader.onerror = () => reject(new Error("File read failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
 function populateProfileForm() {
   if (!profileForm) {
     return;
@@ -808,6 +863,8 @@ function renderProfile() {
       .map((badge) => `<span class="profile-badge">${badge}</span>`)
       .join("");
   }
+
+  renderProfileAvatar();
 }
 
 function saveChecklist() {
@@ -1217,6 +1274,54 @@ if (profileForm) {
     renderProfile();
     renderSchedule();
     showToast(isExistingAccount ? "Профіль студента оновлено" : "Акаунт студента створено");
+  });
+}
+
+if (profilePhotoInput) {
+  profilePhotoInput.addEventListener("change", async () => {
+    const [file] = profilePhotoInput.files || [];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Оберіть саме зображення");
+      profilePhotoInput.value = "";
+      return;
+    }
+
+    try {
+      const avatarDataUrl = await prepareProfilePhoto(file);
+      state.profile = {
+        ...state.profile,
+        avatarDataUrl
+      };
+      saveProfileState();
+      renderProfile();
+      showToast("Фото профілю збережено");
+    } catch (error) {
+      showToast("Не вдалося обробити фото");
+    } finally {
+      profilePhotoInput.value = "";
+    }
+  });
+}
+
+if (removeProfilePhotoButton) {
+  removeProfilePhotoButton.addEventListener("click", () => {
+    if (!state.profile.avatarDataUrl) {
+      showToast("Фото профілю ще не додано");
+      return;
+    }
+
+    state.profile = {
+      ...state.profile,
+      avatarDataUrl: ""
+    };
+    saveProfileState();
+    renderProfile();
+    showToast("Фото профілю прибрано");
   });
 }
 

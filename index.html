@@ -243,6 +243,15 @@
                 <p id="profileHeroText">Після збереження тут з’являться твоє ім’я, група, статус акаунта й маленькі бейджі прогресу.</p>
               </div>
             </div>
+            <div class="profile-identity">
+              <div class="profile-avatar" id="profileAvatar" aria-label="Фото профілю">😊</div>
+              <div class="profile-avatar__controls">
+                <label class="action-button action-button--primary action-button--compact" for="profilePhotoInput">Додати фото</label>
+                <button class="action-button action-button--ghost action-button--compact" type="button" id="removeProfilePhotoButton">Прибрати фото</button>
+                <input id="profilePhotoInput" type="file" accept="image/*" hidden>
+                <p class="profile-avatar__hint">Якщо фото немає, тут буде усміхнений смайлик. Фото зберігається локально на цьому пристрої.</p>
+              </div>
+            </div>
             <div id="profileBadges" class="profile-badges"></div>
             <div class="profile-summary">
               <div class="profile-summary__item">
@@ -325,6 +334,17 @@
       <button class="bottom-nav__item" data-target="faq">FAQ</button>
       <button class="bottom-nav__item" data-target="profile">Профіль</button>
     </nav>
+
+    <div id="installModal" class="modal" hidden>
+      <button class="modal__scrim" type="button" data-close-install aria-label="Закрити"></button>
+      <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="installModalTitle">
+        <button class="modal__close" id="installModalClose" type="button">Закрити</button>
+        <p class="eyebrow">Встановлення PWA</p>
+        <h3 id="installModalTitle">Як встановити додаток</h3>
+        <p id="installModalText">Тут з’являться кроки для встановлення.</p>
+        <ol id="installModalSteps" class="step-list"></ol>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>
