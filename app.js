@@ -571,13 +571,18 @@ const faqFilters = document.getElementById("faqFilters");
 const faqList = document.getElementById("faqList");
 const toast = document.getElementById("toast");
 const heroWelcome = document.getElementById("heroWelcome");
+const heroProfileAvatar = document.getElementById("heroProfileAvatar");
+const heroProfileName = document.getElementById("heroProfileName");
+const heroProfileSubtitle = document.getElementById("heroProfileSubtitle");
 const xpBadge = document.getElementById("xpBadge");
+const miniProfileAvatar = document.getElementById("miniProfileAvatar");
 const miniProfileGroup = document.getElementById("miniProfileGroup");
 const miniProfileStatus = document.getElementById("miniProfileStatus");
 const miniProfileCode = document.getElementById("miniProfileCode");
 const miniScheduleLink = document.getElementById("miniScheduleLink");
 const profileForm = document.getElementById("profileForm");
 const resetProfileButton = document.getElementById("resetProfileButton");
+const chooseProfilePhotoButton = document.getElementById("chooseProfilePhotoButton");
 const profileHeroName = document.getElementById("profileHeroName");
 const profileHeroText = document.getElementById("profileHeroText");
 const profileBadges = document.getElementById("profileBadges");
@@ -617,8 +622,9 @@ function loadProfile() {
 function saveProfileState() {
   try {
     localStorage.setItem(studentProfileStorageKey, JSON.stringify(state.profile));
+    return true;
   } catch (error) {
-    // Ignore storage issues for local demo mode.
+    return false;
   }
 }
 
@@ -720,20 +726,26 @@ async function hashPassword(password) {
   return `local-${password.length}`;
 }
 
-function renderProfileAvatar() {
-  if (!profileAvatar) {
+function setAvatarContent(target, avatarDataUrl) {
+  if (!target) {
     return;
   }
 
-  const avatarDataUrl = state.profile.avatarDataUrl || "";
-  profileAvatar.classList.toggle("has-image", Boolean(avatarDataUrl));
+  target.classList.toggle("has-image", Boolean(avatarDataUrl));
 
   if (avatarDataUrl) {
-    profileAvatar.innerHTML = `<img src="${avatarDataUrl}" alt="Фото профілю студента">`;
+    target.innerHTML = `<img src="${avatarDataUrl}" alt="Фото профілю студента">`;
     return;
   }
 
-  profileAvatar.textContent = "😊";
+  target.textContent = "😊";
+}
+
+function renderProfileAvatar() {
+  const avatarDataUrl = state.profile.avatarDataUrl || "";
+  setAvatarContent(heroProfileAvatar, avatarDataUrl);
+  setAvatarContent(profileAvatar, avatarDataUrl);
+  setAvatarContent(miniProfileAvatar, avatarDataUrl);
 }
 
 function prepareProfilePhoto(file) {
@@ -744,7 +756,7 @@ function prepareProfilePhoto(file) {
       const image = new Image();
 
       image.onload = () => {
-        const maxSide = 320;
+        const maxSide = 220;
         const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
         const width = Math.max(1, Math.round(image.width * scale));
         const height = Math.max(1, Math.round(image.height * scale));
@@ -760,7 +772,7 @@ function prepareProfilePhoto(file) {
         }
 
         context.drawImage(image, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", 0.86));
+        resolve(canvas.toDataURL("image/jpeg", 0.78));
       };
 
       image.onerror = () => reject(new Error("Image decode failed"));
@@ -806,6 +818,16 @@ function renderProfile() {
     heroWelcome.textContent = firstName
       ? `Привіт, ${firstName}! Твоя група ${group}. Усе важливе вже зібрано в одному місці.`
       : "Стартуй як профі: збережи свій профіль, розклад і квести першого тижня.";
+  }
+
+  if (heroProfileName) {
+    heroProfileName.textContent = fullName || "Гість ФМІФ";
+  }
+
+  if (heroProfileSubtitle) {
+    heroProfileSubtitle.textContent = state.profile.group
+      ? `Група ${group} • ${accountCreated ? accountId : "локальний профіль"}`
+      : "Додай фото й заповни профіль, щоб бачити себе тут";
   }
 
   if (xpBadge) {
@@ -1265,6 +1287,7 @@ if (profileForm) {
     state.profile = {
       ...draftProfile,
       passwordHash,
+      avatarDataUrl: state.profile.avatarDataUrl || "",
       accountId: state.profile.accountId || buildAccountId(draftProfile),
       accountCreatedAt: state.profile.accountCreatedAt || new Date().toISOString()
     };
@@ -1297,14 +1320,25 @@ if (profilePhotoInput) {
         ...state.profile,
         avatarDataUrl
       };
-      saveProfileState();
+      const saved = saveProfileState();
       renderProfile();
-      showToast("Фото профілю збережено");
+
+      if (!saved) {
+        showToast("Фото завелике для збереження, спробуй інше");
+      } else {
+        showToast("Фото профілю збережено");
+      }
     } catch (error) {
       showToast("Не вдалося обробити фото");
     } finally {
       profilePhotoInput.value = "";
     }
+  });
+}
+
+if (chooseProfilePhotoButton && profilePhotoInput) {
+  chooseProfilePhotoButton.addEventListener("click", () => {
+    profilePhotoInput.click();
   });
 }
 

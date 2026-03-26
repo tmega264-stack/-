@@ -32,6 +32,13 @@
           <p class="eyebrow">ФМІФ • першокурснику на старт</p>
           <h1>Цифровий гід першокурсника</h1>
           <p class="hero-card__welcome" id="heroWelcome">Стартуй як профі: збережи свій профіль, розклад і квести першого тижня.</p>
+          <div class="hero-profile">
+            <div class="hero-profile__avatar" id="heroProfileAvatar" aria-label="Фото профілю в шапці">😊</div>
+            <div class="hero-profile__meta">
+              <strong id="heroProfileName">Гість FMІФ</strong>
+              <span id="heroProfileSubtitle">Додай фото й заповни профіль, щоб бачити себе тут</span>
+            </div>
+          </div>
           <p class="hero-card__lead">
             Замість хаотичних чатів і десятка вкладок: контакти ФМІФ,
             студентські сервіси, маршрути по корпусу, розклад і відповіді
@@ -108,6 +115,10 @@
             <button class="inline-link" data-jump="profile">Налаштувати</button>
           </div>
           <div class="mini-dashboard">
+            <div class="mini-dashboard__card mini-dashboard__card--avatar">
+              <span class="pill">Аватар</span>
+              <div class="mini-profile-avatar" id="miniProfileAvatar" aria-label="Міні-фото профілю">😊</div>
+            </div>
             <div class="mini-dashboard__card">
               <span class="pill">Група</span>
               <strong id="miniProfileGroup">Не вказано</strong>
@@ -246,7 +257,7 @@
             <div class="profile-identity">
               <div class="profile-avatar" id="profileAvatar" aria-label="Фото профілю">😊</div>
               <div class="profile-avatar__controls">
-                <label class="action-button action-button--primary action-button--compact" for="profilePhotoInput">Додати фото</label>
+                <button class="action-button action-button--primary action-button--compact" type="button" id="chooseProfilePhotoButton">Додати фото</button>
                 <button class="action-button action-button--ghost action-button--compact" type="button" id="removeProfilePhotoButton">Прибрати фото</button>
                 <input id="profilePhotoInput" type="file" accept="image/*" hidden>
                 <p class="profile-avatar__hint">Якщо фото немає, тут буде усміхнений смайлик. Фото зберігається локально на цьому пристрої.</p>

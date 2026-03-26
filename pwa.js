@@ -111,19 +111,6 @@ function updateNetworkState() {
     return;
   }
 
-  if (isFileProtocol) {
-    showBanner(
-      "Зараз застосунок відкрито як файл. Для реального встановлення на смартфоні відкрий його через localhost або HTTPS.",
-      "warning"
-    );
-    return;
-  }
-
-  if (needsSecureHost) {
-    showBanner("Для реального встановлення на смартфон потрібен HTTPS. GitHub Pages підійде.", "warning");
-    return;
-  }
-
   hideBanner();
 }
 
@@ -219,8 +206,6 @@ function registerServiceWorker() {
       if (installHint) {
         installHint.textContent = "Service worker не зареєстровано";
       }
-
-      showBanner("Не вдалося зареєструвати service worker. Перевір запуск через localhost або HTTPS.", "warning");
     }
   });
 }
@@ -234,7 +219,6 @@ function bindInstallPrompt() {
     event.preventDefault();
     deferredInstallPrompt = event;
     refreshInstallUi();
-    showBanner("Додаток готовий до встановлення на телефон.", "success", 4000);
   });
 
   installButton.addEventListener("click", async () => {
@@ -298,4 +282,5 @@ window.addEventListener("offline", updateNetworkState);
 registerServiceWorker();
 bindInstallPrompt();
 bindInstallModal();
+closeInstallModal();
 updateNetworkState();
