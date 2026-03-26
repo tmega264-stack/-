@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Цифровий гід першокурсника • ФМІФ УДУ</title>
+  <meta name="theme-color" content="#0d766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Гід першокурсника">
+  <meta name="description" content="Мобільний веб-додаток для першокурсників ФМІФ УДУ: контакти, сервіси, карта, розклад і FAQ.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-noise"></div>
+  <div class="app-shell">
+    <div id="appBanner" class="app-banner" hidden></div>
+    <div id="toast" class="toast" hidden aria-live="polite"></div>
+    <header class="hero-card">
+      <div class="hero-card__topline">
+        <span class="hero-badge">Офіційні дані УДУ</span>
+        <span class="hero-date" id="todayBadge"></span>
+      </div>
+      <div class="hero-card__content">
+        <div class="hero-card__text">
+          <p class="eyebrow">ФМІФ • першокурснику на старт</p>
+          <h1>Цифровий гід першокурсника</h1>
+          <p class="hero-card__welcome" id="heroWelcome">Стартуй як профі: збережи свій профіль, розклад і квести першого тижня.</p>
+          <p class="hero-card__lead">
+            Замість хаотичних чатів і десятка вкладок: контакти ФМІФ,
+            студентські сервіси, маршрути по корпусу, розклад і відповіді
+            на типові питання першокурсника.
+          </p>
+          <div class="hero-card__actions">
+            <button class="action-button action-button--primary" data-jump="services">Закрити побутові питання</button>
+            <button class="action-button action-button--ghost" data-jump="faq">Швидкі відповіді</button>
+            <button class="action-button action-button--profile" data-jump="profile" type="button">Мій профіль</button>
+            <button class="action-button action-button--install is-hidden" id="installButton" type="button">Завантажити на смартфон</button>
+          </div>
+        </div>
+        <aside class="hero-card__aside">
+          <div class="hero-card__visual">
+            <img src="images/hero-student.svg" alt="Ілюстрація студента з цифровим гідом" class="hero-card__art">
+            <span class="floating-pill">Quest Mode</span>
+            <span class="floating-pill floating-pill--alt" id="xpBadge">120 XP</span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat__label">Адреса</span>
+            <strong>вул. Пирогова, 9</strong>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat__label">Деканат ФМІФ</span>
+            <strong>(044) 239-30-91</strong>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat__label">Перевірено</span>
+            <strong>26 березня 2026</strong>
+          </div>
+          <div class="mini-stat mini-stat--install">
+            <span class="mini-stat__label">PWA режим</span>
+            <strong id="installHint">Доступний офлайн після встановлення</strong>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main class="content">
+      <section id="home" class="panel panel--active" data-panel>
+        <div class="section-title">
+          <h2>Старт</h2>
+          <p>Найшвидший шлях розібратися, куди йти і що робити в перші тижні.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="card card--highlight">
+          <div class="card__heading">
+            <div>
+              <p class="eyebrow">Твій прогрес</p>
+              <h3>Перший тиждень без хаосу</h3>
+            </div>
+            <strong class="progress-count" id="checklistCount">0/0</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-track__bar" id="checklistBar"></div>
+          </div>
+          <div id="onboardingChecklist" class="checklist"></div>
+        </div>
+
+        <div class="section-title section-title--compact">
+          <h2>Офіційні ресурси</h2>
+          <p>Те, що реально знадобиться в перший місяць навчання.</p>
+        </div>
+        <div id="resourceHub" class="resource-grid"></div>
+
+        <div class="card card--arcade">
+          <div class="card__heading">
+            <div>
+              <p class="eyebrow">Профіль студента</p>
+              <h3>Персональний режим</h3>
+            </div>
+            <button class="inline-link" data-jump="profile">Налаштувати</button>
+          </div>
+          <div class="mini-dashboard">
+            <div class="mini-dashboard__card">
+              <span class="pill">Група</span>
+              <strong id="miniProfileGroup">Не вказано</strong>
+            </div>
+            <div class="mini-dashboard__card">
+              <span class="pill">Акаунт</span>
+              <strong id="miniProfileStatus">Не створено</strong>
+              <small id="miniProfileCode">Створи профіль, щоб отримати Student ID</small>
+            </div>
+            <div class="mini-dashboard__card">
+              <span class="pill">Твій розклад</span>
+              <a id="miniScheduleLink" href="https://docs.google.com/spreadsheets/d/1C156sWHs66tFzhNzipuNsUkBWETJUe1kOJgY2DR03Ng/edit?usp=drivesdk" target="_blank" rel="noreferrer">Відкрити</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--spotlight">
+          <div class="card__heading">
+            <div>
+              <p class="eyebrow">Що болить найчастіше</p>
+              <h3>Критичні сервіси першокурсника</h3>
+            </div>
+            <button class="inline-link" data-jump="services">Відкрити всі</button>
+          </div>
+          <div id="spotlightServices" class="spotlight-grid"></div>
+        </div>
+      </section>
+
+      <section id="faculty" class="panel" data-panel>
+        <div class="section-title">
+          <h2>ФМІФ</h2>
+          <p>Реальні контакти й структура факультету математики, інформатики та фізики.</p>
+        </div>
+
+        <div class="card" id="facultyCard"></div>
+
+        <div class="section-title section-title--compact">
+          <h2>Керівництво та контакти</h2>
+          <p>Кому дзвонити й де шукати потрібний кабінет.</p>
+        </div>
+        <div id="contactsList" class="stack-list"></div>
+
+        <div class="section-title section-title--compact">
+          <h2>Профільні кафедри</h2>
+          <p>Окремо виніс підрозділи, які особливо корисні для IT-напряму.</p>
+        </div>
+        <div id="departmentsList" class="stack-list"></div>
+      </section>
+
+      <section id="services" class="panel" data-panel>
+        <div class="section-title">
+          <h2>Сервіси</h2>
+          <p>Документи, оплата, стипендії, довідки та алгоритм дій без зайвого стресу.</p>
+        </div>
+
+        <div class="filter-row" id="serviceFilters"></div>
+        <div id="servicesList" class="services-list"></div>
+      </section>
+
+      <section id="schedule" class="panel" data-panel>
+        <div class="section-title">
+          <h2>Розклад</h2>
+          <p>Не копія розкладу, а зручний хаб із переходами на офіційні джерела ФМІФ та УДУ.</p>
+        </div>
+
+        <div class="card card--highlight">
+          <div class="card__heading">
+            <div>
+              <p class="eyebrow">Навчальний ритм</p>
+              <h3>Як не загубитися в розкладі</h3>
+            </div>
+          </div>
+          <div id="scheduleTips" class="tip-list"></div>
+        </div>
+
+        <div class="section-title section-title--compact">
+          <h2>Офіційні переходи</h2>
+          <p>Основний розклад, графік освітнього процесу, Moodle та студентські сервіси.</p>
+        </div>
+        <div id="scheduleLinks" class="resource-grid"></div>
+      </section>
+
+      <section id="map" class="panel" data-panel>
+        <div class="section-title">
+          <h2>Карта</h2>
+          <p>Центральний корпус на Пирогова, 9 і ключові точки, які реально знадобляться.</p>
+        </div>
+
+        <div class="card card--map">
+          <div class="card__heading">
+            <div>
+              <p class="eyebrow">Центральний корпус</p>
+              <h3>Куди йти на Пирогова, 9</h3>
+            </div>
+          </div>
+          <div class="floor-stack" id="floorMap"></div>
+        </div>
+
+        <div class="section-title section-title--compact">
+          <h2>Маршрути</h2>
+          <p>Підказки для першого походу в деканат, бібліотеку чи приймальну комісію.</p>
+        </div>
+        <div id="routeList" class="stack-list"></div>
+      </section>
+
+      <section id="faq" class="panel" data-panel>
+        <div class="section-title">
+          <h2>FAQ</h2>
+          <p>Пошук по найтиповіших питаннях першокурсника з акцентом на практичні дії.</p>
+        </div>
+
+        <label class="search-box">
+          <span>Що шукаємо?</span>
+          <input id="faqSearch" type="search" placeholder="Наприклад: студентський, стипендія, довідка, пропуск">
+        </label>
+        <div class="filter-row" id="faqFilters"></div>
+        <div id="faqList" class="faq-list"></div>
+      </section>
+
+      <section id="profile" class="panel" data-panel>
+        <div class="section-title">
+          <h2>Мій профіль</h2>
+          <p>Заповни дані студента, створи локальний акаунт і зроби додаток персональним.</p>
+        </div>
+
+        <div class="profile-grid">
+          <div class="card card--profile">
+            <div class="profile-hero">
+              <img src="images/profile-station.svg" alt="Ілюстрація профілю студента" class="profile-hero__art">
+              <div>
+                <p class="eyebrow">Student Save Point</p>
+                <h3 id="profileHeroName">Створи акаунт студента</h3>
+                <p id="profileHeroText">Після збереження тут з’являться твоє ім’я, група, статус акаунта й маленькі бейджі прогресу.</p>
+              </div>
+            </div>
+            <div id="profileBadges" class="profile-badges"></div>
+            <div class="profile-summary">
+              <div class="profile-summary__item">
+                <span>Група</span>
+                <strong id="profileSummaryGroup">Не вказано</strong>
+              </div>
+              <div class="profile-summary__item">
+                <span>Факультет</span>
+                <strong id="profileSummaryFaculty">ФМІФ</strong>
+              </div>
+              <div class="profile-summary__item">
+                <span>Акаунт</span>
+                <strong id="profileSummaryAccount">Не створено</strong>
+              </div>
+              <div class="profile-summary__item">
+                <span>Рівень</span>
+                <strong id="profileSummaryLevel">Level 1</strong>
+              </div>
+              <div class="profile-summary__item">
+                <span>ID акаунта</span>
+                <strong id="profileSummaryId">Ще не створено</strong>
+              </div>
+            </div>
+          </div>
+
+          <form id="profileForm" class="card profile-form">
+            <div class="card__heading">
+              <div>
+                <p class="eyebrow">Локальний акаунт</p>
+                <h3>Заповни свій профіль</h3>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="form-field">
+                <span>Ім’я та прізвище</span>
+                <input id="profileFullName" name="fullName" type="text" placeholder="Наприклад: Ірина Коваль" required>
+              </label>
+              <label class="form-field">
+                <span>Студентський email</span>
+                <input id="profileEmail" name="email" type="email" placeholder="student@udu.edu.ua" required>
+              </label>
+              <label class="form-field">
+                <span>Пароль для акаунта</span>
+                <input id="profilePassword" name="password" type="password" placeholder="Мінімум 6 символів" minlength="6" autocomplete="new-password">
+              </label>
+              <label class="form-field">
+                <span>Група</span>
+                <input id="profileGroup" name="group" type="text" placeholder="Наприклад: ІПЗ-11" required>
+              </label>
+              <label class="form-field">
+                <span>Факультет</span>
+                <select id="profileFaculty" name="faculty">
+                  <option value="ФМІФ">ФМІФ</option>
+                  <option value="Інший">Інший</option>
+                </select>
+              </label>
+              <label class="form-field">
+                <span>Рік вступу</span>
+                <input id="profileYear" name="year" type="number" min="2020" max="2035" placeholder="2026">
+              </label>
+            </div>
+            <div class="profile-form__actions">
+              <button class="action-button action-button--primary" type="submit">Зберегти профіль</button>
+              <button class="action-button action-button--ghost" type="button" id="resetProfileButton">Скинути</button>
+            </div>
+            <p class="profile-form__note">
+              Це демо-акаунт без сервера: дані зберігаються локально в браузері цього пристрою. Якщо акаунт уже створено, пароль можна не змінювати під час редагування профілю.
+            </p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Основна навігація">
+      <button class="bottom-nav__item bottom-nav__item--active" data-target="home">Старт</button>
+      <button class="bottom-nav__item" data-target="faculty">ФМІФ</button>
+      <button class="bottom-nav__item" data-target="services">Сервіси</button>
+      <button class="bottom-nav__item" data-target="schedule">Розклад</button>
+      <button class="bottom-nav__item" data-target="map">Карта</button>
+      <button class="bottom-nav__item" data-target="faq">FAQ</button>
+      <button class="bottom-nav__item" data-target="profile">Профіль</button>
+    </nav>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="pwa.js"></script>
+</body>
+</html>

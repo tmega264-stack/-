@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Офлайн • Цифровий гід першокурсника</title>
+  <meta name="theme-color" content="#0d766e">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4efe5;
+      --card: rgba(255, 251, 245, 0.9);
+      --text: #19222b;
+      --muted: #63707c;
+      --teal: #0d766e;
+      --coral: #d96e43;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(13, 118, 110, 0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(217, 110, 67, 0.16), transparent 32%),
+        linear-gradient(180deg, var(--bg), #eef3ee);
+    }
+
+    .offline-card {
+      width: min(100%, 460px);
+      padding: 28px;
+      border-radius: 28px;
+      background: var(--card);
+      box-shadow: 0 22px 54px rgba(21, 30, 35, 0.12);
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(13, 118, 110, 0.12);
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: 1.9rem;
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .tips {
+      margin: 18px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button--primary {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .button--ghost {
+      background: rgba(217, 110, 67, 0.12);
+      color: #8c4629;
+    }
+  </style>
+</head>
+<body>
+  <article class="offline-card">
+    <span class="badge">Офлайн-режим</span>
+    <h1>Немає інтернету, але основні функції доступні</h1>
+    <p>
+      Застосунок зберіг локально основні сторінки, стилі та сценарії.
+      Коли з’єднання повернеться, просто онови сторінку.
+    </p>
+    <ul class="tips">
+      <li>FAQ, інструкції та частина контенту вже мають працювати з кешу.</li>
+      <li>Зовнішні посилання на сайти УДУ потребують інтернету.</li>
+      <li>Для найкращого ефекту встанови застосунок на головний екран.</li>
+    </ul>
+    <div class="actions">
+      <a class="button button--primary" href="./index.html">Повернутися в додаток</a>
+      <a class="button button--ghost" href="./manifest.json">Перевірити manifest</a>
+    </div>
+  </article>
+</body>
+</html>
